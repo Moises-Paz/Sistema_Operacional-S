@@ -4,7 +4,7 @@
 //Nome: Moises Paz Melo dos Santos.  <---
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <Windows.h>
 typedef struct no{
     char nome;
     int valor;
@@ -20,7 +20,7 @@ void politica(){
         printf("POLITICA DE DESTRUICAO:\n");
         printf("1 - Processos que tem filhos nao podem ser excluidos.\n");
         printf("2 - Quando processos que tem filhos sao excluidos, toda a subarvore a partir do ponto de exclusao deve ser excluida.\n");
-        printf("3 - Quqnado processos que tem filhos sao excludos, os filhos devem ser ligados ao vertice superior (avo).\n");
+        printf("3 - Quando processos que tem filhos sao excluidos, os filhos devem ser ligados ao vertice superior (avo).\n");
         printf("Resposta: ");
         fgets(&resposta, 2, stdin);
     }
@@ -136,9 +136,15 @@ void novosProcessos(NO **root, char valor[]){
     if(*root){
         int px, py;
         py = converte(valor, &px);
-        if(py == -1 && px == -1) puts("Formato de entrada INVALIDO! O formato deve seguir o seguinte padrao: 'PX-PY'");
+        if(py == -1 && px == -1){
+            system("cls");
+            puts("Formato de entrada INVALIDO! O formato deve seguir o seguinte padrao: 'PX-PY'");
+        }
         else{
-            if(py == -2) puts("Formato de entrada INVALIDO! Por vafor, informe a entrada no formato 'PX-PY'");
+            if(py == -2){
+                system("cls");
+                puts("Formato de entrada INVALIDO! Por vafor, informe a entrada no formato 'PX-PY'");
+            }
             else{
                 if(px != py){
                     NO *pai = buscaPai(root, px);
@@ -148,46 +154,224 @@ void novosProcessos(NO **root, char valor[]){
                             novo->valor = py;
                             novo->brother = pai->son;
                             pai->son = novo;
+                            system("cls");
+                            puts("Processo criado com sucesso!");
                         }
-                        else puts("Por algum motivo nao foi possivel criar novo processo.");
+                        else{
+                            system("cls");
+                            puts("Por algum motivo nao foi possivel criar novo processo.");
+                        }
                     }
-                    else printf("Pai nao encontrado!\n");
+                    else {
+                        system("cls");
+                        printf("Pai nao encontrado!\n");
+                    }
                 }
-                else puts("O pai nao pode ser igual ao filho.");
+                else {
+                    system("cls");
+                    puts("O pai nao pode ser igual ao filho.");
+                }
             }
         }
     }
 }
 
-int main(){
-    char nome[15];
-    NO *root = inicio();
-    while(1){
-        fflush(stdin);
-        printf("Infome no fomato px-py: ");
-        gets(nome);
-        novosProcessos(&root, nome);
-        mostra(root);
-        puts("");
+NO* procuraNo(NO **root, NO **pai, int px){
+    if(*root){
+        if((*root)->valor == px) return *root;
+        else{
+            *pai = *root;
+            NO *ajuda = procuraNo(&(*root)->brother, &(*pai), px);
+            if(ajuda) return ajuda;
+            else{
+                *pai = *root;
+                return procuraNo(&(*root)->son, &(*pai), px);
+            }
+        }
     }
-        
-        
-    /*
+    else return NULL;
+}
+
+void destroiTree(NO **root){
+    if(*root){
+        destroiTree(&(*root)->brother);
+        destroiTree(&(*root)->son);
+        free((*root));
+        *root = NULL;
+    }
+}
+
+void destruirProcessos(NO **root, char vetor[]){
+    if(*root){
+        int px, verifica;
+        verifica = converte(vetor, &px);
+        if(px != -1 && verifica == -2){
+            NO *aux = NULL,*pai = NULL;
+            aux = procuraNo(root, &pai, px);
+            if(aux){
+                switch (resposta){
+                    case '1':
+                    {
+                        if(aux->brother || aux->son) puts("O processo nao pode ser excluido pois contem filho! ");
+                        else{
+                            if(pai){
+                                if(pai->brother == aux) pai->brother = NULL;
+                                if(pai->son == aux) pai->son = NULL;
+                            }
+                            if(aux == *root) *root = NULL;
+                            free(aux);
+                            aux = NULL;
+                            puts("Processo encerrado com sucesso!");
+                            Sleep(1000);
+                        }
+                        break;
+                    }
+                    case '2':
+                    {
+                        if(pai){
+                            if(pai->brother == aux) pai->brother = NULL;
+                            if(pai->son == aux) pai->son = NULL;
+                            destroiTree(&aux);
+                            free(aux);
+                            aux = NULL;
+                        }
+                        else{
+                            *root = NULL;
+                            free(aux);
+                            aux = NULL;
+                        }
+                        puts("Processo encerrado com sucesso!");
+                        Sleep(1000);
+                        break;
+                    }
+                    case '3':
+                    {
+                        if(pai){
+                            if (aux->son)
+                            {
+                                if(aux->brother){
+                                    NO *p = aux->son;
+                                    while (p->brother) p = p->brother;
+                                    p->brother = aux->brother;
+                                }
+                                
+                                if (pai->brother == aux)
+                                {
+                                    pai->brother = aux->son;
+                                }
+                                else
+                                {
+                                    pai->son = aux->son;
+                                }
+                            }
+                            else
+                            {
+                                if (pai->brother == aux)
+                                {
+                                    pai->brother = aux->brother;
+                                }
+                                else
+                                {
+                                    pai->son = aux->brother;
+                                }
+                            }
+                            free(aux);
+                            aux = NULL;
+                        }
+                        else{
+                            destroiTree(&aux);
+                            free(aux);
+                            aux = NULL;
+                            *root = NULL;
+                            
+                        }
+                        puts("Processo encerrado com sucesso!");
+                        Sleep(1000);
+                        break;
+                    }
+                    default:
+                    {
+                        puts("Parabens voce burlou a primeira verificacao e foi pego por mais uma! Valor invalido");
+                    }
+                }
+            }
+            else puts("Processo nao encontrado!");
+        }
+        else puts("Formato invalido! Tente informar uma entrada no padrao 'PX'.");
+    }
+    else puts("Nao ha processos para serem destruidos.");
+}
+
+int main(){
+    politica();
     NO *root = inicio();
-    printf("Infome no fomato px-py: ");
-    gets(nome);
-    novosProcessos(&root, nome);
-    mostra(root);
-    puts("");
-    printf("Infome no fomato px-py: ");
-    gets(nome);
-     novosProcessos(&root, nome);
-    mostra(root);
-    puts("");
-    printf("Infome no fomato px-py: ");
-    gets(nome);
-     novosProcessos(&root, nome);
-    mostra(root);
-    puts("");*/
+    system("cls");
+    puts("Processo inicial criado.");
+    Sleep(2021);
+    char valor[2] = {'0'};
+    while(valor[0] != '5'){
+        system("cls");
+        fflush(stdin);
+        puts("OPERACOES:");
+        puts("1 - Criar processo.");
+        puts("2 - Mostrar processos.");
+        puts("3 - Mostrar a quantidade de processos ativos.");
+        puts("4 - Destruir processos.");
+        puts("5 - Fechar programa!");
+        fgets(valor, 2, stdin);
+        switch (valor[0]){
+            char vetor[30];
+            printf("ola");
+            case '1': 
+            {   
+                system("cls");
+                fflush(stdin);
+                printf("Informe a entrada no formato:'PX-PY', onde X eh o pai e Y eh o processo que deseja inserir: ");
+                gets(vetor);
+                novosProcessos(&root, vetor);
+                system("pause");
+                break;
+            }
+            case '2':
+            {
+                system("cls");
+                mostra(root);
+                puts("");
+                system("pause");
+                break;
+            }
+            case '3':
+            {
+                system("cls");
+                int resultado = conta(root);
+                printf("Processos ativos: %d\n", resultado);
+                system("pause");
+                break;
+            }
+            case '4':
+            {
+                system("cls");
+                fflush(stdin);
+                printf("Informe o processo que deseja encerrar no formato: 'PX' (onde X eh o numero do processo): ");
+                gets(vetor);
+                destruirProcessos(&root, vetor);
+                system("pause");
+                break;
+            }
+            case '5':
+            {
+                valor[0] = '5';
+                destroiTree(&root);
+                system("cls");
+                break;
+            }
+            default:
+            {
+                system("cls");
+                printf("Opcao invalida!");
+                Sleep(1000);
+            }
+        }
+    }
     return 0;
 }
