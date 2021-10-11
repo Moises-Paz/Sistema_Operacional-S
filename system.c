@@ -222,7 +222,7 @@ void destruirProcessos(NO **root, char vetor[]){
                             free(aux);
                             aux = NULL;
                             puts("Processo encerrado com sucesso!");
-                            Sleep(1000);
+                            Sleep(500);
                         }
                         break;
                     }
@@ -241,7 +241,7 @@ void destruirProcessos(NO **root, char vetor[]){
                             aux = NULL;
                         }
                         puts("Processo encerrado com sucesso!");
-                        Sleep(1000);
+                        Sleep(500);
                         break;
                     }
                     case '3':
@@ -286,7 +286,7 @@ void destruirProcessos(NO **root, char vetor[]){
                             
                         }
                         puts("Processo encerrado com sucesso!");
-                        Sleep(1000);
+                        Sleep(500);
                         break;
                     }
                     default:
