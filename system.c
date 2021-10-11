@@ -212,11 +212,17 @@ void destruirProcessos(NO **root, char vetor[]){
                 switch (resposta){
                     case '1':
                     {
-                        if(aux->brother || aux->son) puts("O processo nao pode ser excluido pois contem filho! ");
+                        if(aux->son) puts("O processo nao pode ser excluido pois contem filho! ");
                         else{
                             if(pai){
-                                if(pai->brother == aux) pai->brother = NULL;
-                                if(pai->son == aux) pai->son = NULL;
+                                if(aux->brother){
+                                    if(pai->brother == aux) pai->brother = aux->brother;
+                                    if(pai->son == aux) pai->son = aux->brother;
+                                }
+                                else{
+                                   if(pai->brother == aux) pai->brother = NULL;
+                                   if(pai->son == aux) pai->son = NULL; 
+                                }
                             }
                             if(aux == *root) *root = NULL;
                             free(aux);
@@ -229,8 +235,15 @@ void destruirProcessos(NO **root, char vetor[]){
                     case '2':
                     {
                         if(pai){
-                            if(pai->brother == aux) pai->brother = NULL;
-                            if(pai->son == aux) pai->son = NULL;
+                            if(aux->brother){
+                                if(pai->brother == aux) pai->brother = aux->brother;
+                                if(pai->son == aux) pai->son = aux->brother;
+                            }
+                            else{
+                                if(pai->brother == aux) pai->brother = NULL;
+                                if(pai->son == aux) pai->son = NULL; 
+                            }
+                            aux->brother = NULL;
                             destroiTree(&aux);
                             free(aux);
                             aux = NULL;
