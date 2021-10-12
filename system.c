@@ -13,7 +13,7 @@ typedef struct no{
 }NO;
 
 char resposta = '0';
-void politica(){
+void politica(){ // a) Funcao que define a politica de destruicao de processos. 
     while(resposta != '1' && resposta != '2' && resposta != '3'){
         system("cls");
         fflush(stdin);
@@ -26,7 +26,7 @@ void politica(){
     }
 }
 
-void mostra(NO *root){
+void mostra(NO *root){ // f) Funcao para visualizar a arvore de relacionamentos entre processos.
     if(root){
        printf("%c%d", root->nome, root->valor);
        if(root->son){
@@ -44,7 +44,7 @@ void mostra(NO *root){
     }
 }
 
-int conta(NO *root){
+int conta(NO *root){ // e) Funcao que conta a quantidade de processos abertos.
     if(root){
         return 1 + conta(root->brother) + conta(root->son);
     }
@@ -56,7 +56,7 @@ int conta(NO *root){
 int converte(char entrada[], int *px){
     if(entrada[0] == 'P' || entrada[0] == 'p'){
         int i = 1, cont = 0;
-        char aux[6]; //cuidado! pode estourar.
+        char aux[6];
         while(entrada[i] >= 48 && entrada[i] <= 57){
             aux[cont] = entrada[i];
             i++;
@@ -77,7 +77,7 @@ int converte(char entrada[], int *px){
                 aux2[cont] = '\0';
                 if(entrada[i] == '\0' && entrada[i-1] != 'P' && entrada[i-1] != 'p'){
                     *px = strtol(aux, NULL, 10);
-                    return strtol(aux2, NULL, 10); //quando esta no formato pX-PY;
+                    return strtol(aux2, NULL, 10); 
                 }
                 else{
                     *px = -1;
@@ -85,23 +85,23 @@ int converte(char entrada[], int *px){
                 }
             }
             else{
-                *px = -1;//quando nao esta no formato p...p.. ou P...P...
+                *px = -1;
                 return -1;
             }
         }
         else{
             if(aux[0] != '\0') *px = strtol(aux, NULL, 10);
             else *px = -1;
-            return -2;//quando é o formato pX -2222;
+            return -2;
         }
     }
     else{
-        *px = -1;//quando nao esta no formato p... ou P...
+        *px = -1;
         return -1;
     }
 }
 
-NO* inicio(){
+NO* inicio(){ // b) Funcao que cria o processo inicial.
     NO *novo = NULL;
     novo = (NO *) malloc(sizeof(NO));
     if(novo){
@@ -132,7 +132,7 @@ NO* buscaPai(NO **root, int pai){
     }
 }
 
-void novosProcessos(NO **root, char valor[]){
+void novosProcessos(NO **root, char valor[]){ // c) Funcao que cria novos processos.
     if(*root){
         int px, py;
         py = converte(valor, &px);
@@ -153,7 +153,7 @@ void novosProcessos(NO **root, char valor[]){
                         if(novo){
                             novo->valor = py;
                             novo->brother = pai->son;
-                            pai->son = novo;
+                            pai->son = novo;// Novos processos sao inseridos na 'cabeca' da fila;
                             system("cls");
                             puts("Processo criado com sucesso!");
                         }
@@ -201,7 +201,7 @@ void destroiTree(NO **root){
     }
 }
 
-void destruirProcessos(NO **root, char vetor[]){
+void destruirProcessos(NO **root, char vetor[]){ // d) Funcao que detroi processos
     if(*root){
         int px, verifica;
         verifica = converte(vetor, &px);
